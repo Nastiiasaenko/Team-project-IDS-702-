@@ -1,0 +1,149 @@
+---
+title: "Team proposal"
+format: pdf
+editor: visual
+---
+
+```{r include=FALSE}
+library(tidyverse)
+```
+
+#### Anastasiia Saenko. Antara Bhide. Daniela Jiménez Lara
+
+## Dataset 1. National Survey of Incarcerated Population in Mexico
+
+### General Information
+
+-   Source: INEGI (2021). *Encuesta Nacional de Personas Privadas de a Libertad*.\[Data set\].INEGI. https://www.inegi.org.mx/programas/enpol/2021/.
+
+The National Survey of Incarcerated Population in Mexico (ENPOL) is a survey implemented by the Mexican National Institute of Statitistics and Geography during 2021. Its general objective is to provide information on the experience of the criminal procedure and internment of the incarcerated population aged 18 and over. The general themes covered by the survey are the following:
+
+-   Sociodemographic characteristics
+-   Background
+-   Judicial procedure
+-   Penitentiary center.
+-   Exit expectations.
+
+The geographical breakdown of the survey encompasses 32 federal states and 54 penitenciary centers of interest.
+
+The sample size (observations): **67,584** people aged 18 and over:
+
+-   55,535 men
+-   12,049 women
+
+### Research question 1:
+
+**How does the type of authority making the arrest and their use of violence influence an inmate's perception for the reason for their incarceration?**
+
+#### Predictor variables
+
+We are exploring how the authority that detained the inmmate (categorical) and their use of of force during arrest and/or violence and threats impact the inmates' perception of why they are in prison. Other control variables that will be used are crime commited, age of inmate, school grade completed by inmate, among others.
+
+#### Outcome variables:
+
+Inmate's perception for the reason of incarceration (categorical)
+
+### Research question 2:
+
+**How does the existence of extortion from authorities to inmates during the arrest influence an inmate's sentence?**
+
+#### Predictor variables:
+
+We are exploring how the existance of an exotortion towards the inmate, from the authorities that commited the arrest, affects the eventual sentence of prison time. Other control variables that will be included are the type of defence (private, public), inmates' income before arrest, age, school grade completed, among others.
+
+#### Outcome variables:
+
+Years in prison sentence (continuous)
+
+### Here is a glimpse of the data
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+db_1 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_SOC.csv")
+db_2_3 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_2_3.csv")
+db_4 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_4.csv")
+db_5 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_5.csv")
+
+
+db <- db_1 %>% left_join(db_2_3) %>% 
+  left_join(db_4) %>%
+  left_join(db_5)
+glimpse(db)
+```
+
+## Dataset 2: Life Expectancy data
+
+### General Information
+
+This is a combined data from [World Bank Open Data](https://data.worldbank.org/) & [Our World in Data](https://ourworldindata.org/). The data explored the projected life expectancy of newborns if the projected mortality patterns at the time of birth were fixed. The dataset is a panel dataset with socio-economic data for years of 2001 to 2019 for 174 countries. It combines several socio-economic variables: basic country indicators such as GPD, unemployment, education and health indicators (disability, health expenditure,sanitation) as well as climate patterns data (emissions) and political indicators (corruption). The data overall has 3306 entries and 16 variables.
+
+### Research question 1:
+
+**What's the Impact of Socio-economic factors on life Expectancy?**
+
+#### Predictor variables
+
+We are exploring the impact of various socio-economic factors on life expectancy. We will explore relationships between such factors as CO2 emissions, corruption, education and health industries on life expectancy. Some of those variables are also included as control variables.
+
+#### Outcome variable
+
+Outcome variable that we are using is life expectancy (in years)
+
+### Research question 2:
+
+**How do a country's health expenditure, education expenditure, and income group influence the prevalence of undernourishment among its population ?**
+
+#### Predictor variables
+
+Health expenditure, education expenditure and other country-level indicators(gdp, corruptions).
+
+#### Outcome variable
+
+Prevalence of Undernourishment (% of the population) \## Here's the glimpse of the data
+
+```{r echo=FALSE}
+url <- 'https://raw.githubusercontent.com/Nastiiasaenko/Team-project-IDS-702-/main/life%20expectancy.csv'
+df <- read.csv(url)
+glimpse(df)
+```
+
+## Dataset 3: US School Scores Dataset
+
+Source: National Center for education Statistics - https://nces.ed.gov/ccd/aboutCCD.asp
+
+### General Information
+
+This dataset represents the SAT scores of students across the various states of the US from 2005 till 2015 along with their GPAs and score ranges for different subjects. The dataset also provides their financial backgrounds as well as their genders.
+
+This dataset consists of 578 entries and 99 variables.
+
+### Research question 1:
+
+**What is the likeliest SAT score for a student provided a specific financial background.**
+
+#### Predictor variables
+
+We are exploring the effect of financial backgrounds, gender, year , and scores in multiple subjects on the outcome variable
+
+#### Outcome variable
+
+Outcome variable that we are using is SAT score.
+
+### Research question 2:
+
+**What is the likeliest score for math/verbal provided a specific financial background as well as gender**
+
+#### Predictor variables
+
+GPA, financial background , gender, year , SAT score(and several other subject wise grades)
+
+#### Outcome variable
+
+Math/ Verbal score
+
+### Here's the glimpse of the data
+
+```{r echo=FALSE}
+url <- 'https://raw.githubusercontent.com/Nastiiasaenko/Team-project-IDS-702-/main/school_scores.csv'
+ df <- read.csv(url)
+glimpse(df)
+```
