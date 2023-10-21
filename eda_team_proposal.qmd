@@ -1,0 +1,196 @@
+---
+format: pdf
+editor: visual
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(pacman)
+p_load(tidyverse, knitr, gt)
+```
+
+# Exploratory Data Analysis
+
+Anastasiia Saenko. Antara Bhide. Daniela Jiménez Lara
+
+## Data Overview:
+
+This report pretends to answer either of the following research questions:
+
+-   **How does the type of authority making the arrest and their use of violence influence an inmate's perception for the reason for their incarceration in Mexico?**
+
+-   **How does the existence of extortion from authorities to inmates during the arrest influence an inmate's sentence in Mexico?**
+
+For this purpose, we are using the Mexican National Survey of Incarcerated Population (ENPOL) implemented by the Mexican National Institute of Statistics and Geography (INEGI) during 2021. Its general objective is to provide information on the experience of the criminal procedure and internment of the incarcerated population in Mexico aged 18 and over. The survey was designed to produce statistically relevant results and estimations at the national level, state level and prison level.
+
+The general themes covered by the survey are the following:
+
+-   Sociodemographic and socioeconomic characteristics
+-   Family and employment background
+-   Legal and criminal background
+-   Judicial procedure
+-   Arrest information
+-   Experience with the district attorney's office
+-   Experience in the penitentiary center
+-   Exit expectations.
+
+To carry out the survey, 203 penitentiary centers were visited between June and July of 2021, 54 of them were of interest. The survey size contemplated *67584** people aged 18 and over, of which **55,535** are men and **12,049** women. However, only the complete surveys where published in the final dataset, hence the dataset contains **61,499** rows, each representing an inmate that was interviewed. Each column represents the answer to a question or follow-up answers for the same questions. The dataset is divided into seven csv files containing the 11 modules of the survey with a total of 1286 columns.
+
+```{r}
+module_table=tibble("Module"=c("Module 1",
+                              "Module 2","Module 3","Module 4","Module 5","Module 6",
+                              "Module 7","Module 8","Module 9","Module 10","Module 11"),
+                    "Content"=c("sociodemographic characteristics: nationality, marital status, education, sexual orientation<br> gender identity, health, consumption of psychotropic substances",
+                                "Housing and home condition prior to arrest, work history and economic income",
+                                "Information related to the context or circumstances in which the informant's arrest occurred",
+                                "Experiences of inmates during their stay at the Public Ministry Agency (D.A.office), as well as the violation of rights and possible acts of corruption of which they could have been victims in said process.",
+                               "Information related to the crimes (allegedly) committed, characteristics of the criminal process, as well as the type of defense and satisfaction with it is detailed.",
+                               "Information about the characteristics of the prison cells, goods and services provided by the prison",
+                               "Lifestyle within the Penitentiary Center: sports, recreation, religious worship). Family visits received, interaction with other inmates and the prison staff. Victimization and discrimination in the Penitentiary Center",
+                               "Possible acts of corruption associated with the provision and access to different goods and services within Penitentiary Centers",
+                               "Criminal and family history of inmates",
+                               "Exit expectations of inmates and self-perception",
+                               "Condition of the interview, that is, situations that arose during the development of the interview with the informant at the Center."
+))
+
+```
+
+-   Source: INEGI (2021). *Encuesta Nacional de Personas Privadas de a Libertad*.\[Data set\].INEGI. https://www.inegi.org.mx/programas/enpol/2021/.
+
+```{r}
+gt(module_table, 
+             caption= "Information in the 11 modules of ENPOL dataset")
+```
+
+```{r}
+e_s <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_SOC.csv")
+e_2_3 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_2_3.csv")
+e_4 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_4.csv")
+e_5 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_5.csv")
+#e_6 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_6.csv")
+#e_7 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_7.csv")
+e_8_11 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_8_9_10_11.csv")
+  
+```
+
+```{r}
+ 
+  
+db <- e_s %>% left_join(e_2_3, by = c("ID_PER", "CVE_ENT","CEN_INT","NOM_ENT","NOM_INT","SEXO","FUERO")) %>% 
+  left_join(e_4,by = c("ID_PER", "CVE_ENT","CEN_INT","NOM_ENT","NOM_INT","SEXO","FUERO")) %>%
+  left_join(e_5, by = c("ID_PER", "CVE_ENT","CEN_INT","NOM_ENT","NOM_INT","SEXO","FUERO")) %>% 
+  left_join(e_8_11, by = c("ID_PER", "CVE_ENT","CEN_INT","NOM_ENT","NOM_INT","SEXO","FUERO"))
+```
+
+## Outcome variables:
+
+#### Research question 1: How does the type of authority making the arrest and their use of violence influence an inmate's perception for the reason for their incarceration in Mexico?
+
+The outcome variable for this research question is an inmate's perception for the reason of their incarceration, measured in question 3.1 of the ENPOL survey:  Could you tell me why you are in this prison?
+
+```{r, fig.width=7, fig.height=3}
+
+db %>%
+  group_by(P3_1) %>% 
+  count(name="total") %>% 
+  ungroup() %>%
+  mutate(P3_1_label=case_when(P3_1==1~ "Because I committed a crime",
+                              P3_1==2~ "Because I assisted in the commission\n of a crime",
+                              P3_1==3~ "Because I have not been able to prove\n my innocence",
+                              P3_1==4~ "They falsely accused me of committing a crime, \nthey accused me, they confused me, \nthey say that I committed a crime",
+                              P3_1==5~ "Other",
+                              P3_1==8~ "Does not know",
+                              P3_1==9~ "Does not respond")) %>% 
+  ggplot(aes(reorder(P3_1_label,-total),total,label=total)) +
+  geom_col(fill='#ffaa66')+
+  geom_text( vjust=0.5, hjust=1)+
+  coord_flip()+
+  labs(title='Question 3.1. Could you tell me why you are in this prison?',
+       caption="Source: ENPOL, 2021")+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank(),
+    plot.title = element_text(size = 12))+
+    theme (plot.title.position = "plot")
+
+
+
+
+
+
+
+```
+
+The distribution of the outcome variable tells us that 42% (26267) of the inmates perceive that the reason for their incarceration is because they committed a crime or assisted in the commission of one. However 56% (34784) perceive that they are in prison because they have not been able to prove their innocence or because they have been falsely accused. For this outcome variable, the missing values are pretty low with .3% of no answers.
+
+
+#### Research question 2: How does the existence of extortion from authorities to inmates during the arrest influence an inmate's sentence in Mexico?
+
+The outcome variable for this research question is the inmate's years in their prison sentence, measured in question 5.4 of the ENPOL Survey: How long did the Judge tell you that you would remain confined in a Penitentiary Center? 
+
+```{r}
+db %>% group_by( P5_4_A,P5_4_M) %>%count() %>% view()
+```
+
+```{r, fig.width=12, fig.height=4}
+hist_1 <- db %>%
+  filter(!is.na(P5_4_A)) %>% 
+  filter(!P5_4_A%in%c("98","99","b", "00")) %>% 
+  ggplot(aes(P5_4_A)) +
+  geom_histogram(stat="count",fill='#ffaa66')+
+  #geom_text( vjust=0.5, hjust=1)+
+  #coord_flip()+
+  labs(title='Question P5.4A. How long did the Judge tell you that you would remain confined in a Penitentiary Center? (answer in years)',
+       #xlab='Years in prison sentence',
+       caption="Source: ENPOL, 2021")+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(angle = 90),
+    plot.title = element_text(size = 12))+
+    theme (plot.title.position = "plot")
+hist_1
+
+
+```
+
+```{r, fig.width=12, fig.height=3.5}
+hist_2 <- db %>%
+  #filter(!is.na(P5_4_A)) %>% 
+  filter(P5_4_A%in%c("98","99","b", "00", NA)) %>% 
+  mutate(P5_4_A_label=case_when(P5_4_A=="98"~"Does not know",
+                                P5_4_A=="99"~"Does not respond",
+                                P5_4_A=="b"~"blank",
+                                P5_4_A=="00"~"Does not apply")) %>% 
+  ggplot(aes(P5_4_A_label)) +
+  geom_bar(stat="count",fill='#ffaa66', )+
+  geom_text(stat='count', aes(label=..count..), vjust=-.1)+
+  #coord_flip()+
+  labs(title='Question P5.4A. How long did the Judge tell you that you would remain confined in a Penitentiary Center? (Missing values)',
+       caption="Source: ENPOL, 2021")+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank(),
+    plot.title = element_text(size = 12))+
+    theme (plot.title.position = "plot")
+hist_2
+
+```
+For this outcome variable, the missing values plus the no-answer rate account for around 33% of the data. The distribution of the years in prison sentences does not follow a normal distribution, though most of the data concentrates in 1 to 20 years of prison sentence. 
+
+
+
+## Primary relationships of interest:
+
+Present descriptive statistics and exploratory plots in whichever format you think is best (tables, figures) for your primary relationship of interest (dependent variable and primary independent variable, if applicable). Describe your findings. Whether you have one primary independent variable of interest or multiple will depend on your research question.
+
+##Other characteristics:
+
+Briefly describe other variables in the data. If there are many, do not list them all. Rather, describe the types of variables that are present (e.g., "demographic information").
+
+##Potential challenges:
+
+Describe aspects of the data that may present challenges in the modeling stage. For example, might certain categorical variables need to be collapsed? Do you have any missingness, particularly in key variables of interest? Could the size of the dataset present model selection challenges?
