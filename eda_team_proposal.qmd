@@ -63,13 +63,19 @@ gt(module_table,
 ```
 
 ```{r}
-e_s <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_SOC.csv")
-e_2_3 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_2_3.csv")
-e_4 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_4.csv")
-e_5 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_5.csv")
+id_s <- "1m0FKs3M4Bv0V5ayZjvTTnroHi0DBjMoU" # google file ID
+id_2_3 <-"1ZfMMvAiBLEu6OXLLgPWZ5961klUJ9rXH"
+id_4 <-"1qeAlfkQ5OlZTkWmgRmhyk4P8A7mX3D-8"
+id_5 <-"17c0VMN8nMa6fUlj62iexhJWGZtbHb8DD"
+id_8_11 <-"19VyQ1BD69l61cn_WGsQx2f1p8M3v2-7x"  
+
+e_s <- read_csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id_s))
+e_2_3 <-read_csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id_2_3))
+e_4 <- read_csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id_4))
+e_5 <- read_csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id_5))
 #e_6 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_6.csv")
 #e_7 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_7.csv")
-e_8_11 <- read_csv("01 in /bd_enpol_2021_csv/ENPOL2021_8_9_10_11.csv")
+e_8_11 <-read_csv(sprintf("https://docs.google.com/uc?id=%s&export=download", id_8_11))
   
 ```
 
